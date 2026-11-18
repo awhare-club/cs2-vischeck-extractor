@@ -1,0 +1,45 @@
+name: release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: src/Cs2VischeckExtractor.csproj
+
+      - name: Publish
+        run: dotnet publish src/Cs2VischeckExtractor.csproj -c Release -r win-x64 --nologo -o publish
+
+      - name: Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $false
+          $notes = "windows x64`n`n$env:GITHUB_SHA"
+          $exe = "publish/cs2-vischeck-extractor.exe"
+          gh release view latest --repo $env:GITHUB_REPOSITORY | Out-Null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create latest $exe --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title latest --notes $notes --latest
+          } else {
+            gh release edit latest --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --notes $notes --latest
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            gh release upload latest $exe --repo $env:GITHUB_REPOSITORY --clobber
+          }
+          exit $LASTEXITCODE

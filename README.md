@@ -30,6 +30,10 @@ No arguments extracts every official `de_`, `cs_`, and `ar_` map into `./out`. `
 
 The mesh is the `default` collision group only. Windows, clips, ladders, and sky stay out.
 
+## Release
+
+A push to `main` replaces the `latest` release asset `cs2-vischeck-extractor.exe`. It is a Windows x64 self-contained binary.
+
 ## Why these pieces
 
 ValveResourceFormat reads the physics aggregate directly. The VPK directory is read here, because ValvePak stops at the first preloaded entry and then `ar_pool_day` looks like it has no world physics. A nested `maps/*.vpk` is opened the same way.
