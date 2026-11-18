@@ -1,14 +1,46 @@
 # cs2-vischeck-extractor
 
-Reads Counter-Strike 2 map VPKs and writes the Default world-collision mesh the overlay traces.
+Reads CS2 map VPKs and writes the world collision a vischeck trace uses.
 
-A `.tri` file is a raw list of triangles. Each triangle is 36 bytes: nine little-endian floats, three vertices, xyz. The overlay drops non-finite and degenerate triangles.
+ValvePak stops at the first preloaded directory entry, so `ar_pool_day` looks like it has no world physics. This walks the VPK itself, including a nested `maps/*.vpk`. Only the Default collision group is kept. Clips, ladders, sky, grenade clip, and ConditionallySolid stay out.
+
+## .tri
+
+A `.tri` file is a flat list of triangles, little endian.
+
+```cpp
+struct Triangle {
+    float p1x, p1y, p1z;
+    float p2x, p2y, p2z;
+    float p3x, p3y, p3z;
+}; // 36 bytes
+```
+
+When you load one, skip a triangle if a float is not finite or the three points are the same.
+
+`.vphys` is the PHYS block as text. It is written next to the `.tri` when you ask for it. ValveResourceFormat reads the physics aggregate.
+
+## Run
+
+.NET 10 SDK. `start.bat` asks twice. Maps: 1 official, 2 official plus workshop. Files: 1 `.tri`, 2 `.vphys`, 3 both. Enter keeps 1. Everything lands in `out\`.
+
+```
+dotnet run --project src -- --only de_mirage
+dotnet run --project src -- --workshop --tri --vphys
+dotnet run --project src -- --cs2 "C:\path\to\Counter-Strike Global Offensive"
+```
+
+No arguments extracts every official `de_`, `cs_`, and `ar_` map. Vanity, preview, and lobby VPKs are skipped. The install is found through Steam.
+
+## Release
+
+A push to `main` replaces `cs2-vischeck-extractor.exe` on the `latest` release. Windows x64, self-contained.
 
 ## Layout
 
 ```
 src/cli/       arguments and the run
-src/maps/      Steam, the CS2 install, which maps
+src/maps/      Steam, the install, which maps
 src/vpk/       VPK directory and world_physics.vmdl_c
 src/physics/   PHYS block, Default collision, hulls, meshes
 src/tri/       the 36-byte triangle file
@@ -16,24 +48,3 @@ src/vphys/     the physics dump
 ```
 
 `src/Program.cs` only starts the run.
-
-## Run
-
-Requires the .NET 10 SDK.
-
-```
-dotnet run --project src -- --only de_mirage,de_dust2
-dotnet run --project src -- --workshop --tri --vphys
-```
-
-No arguments extracts every official `de_`, `cs_`, and `ar_` map into `./out`. `--vphys` writes the physics dump beside the `.tri` files. `--cs2` overrides the install path. Vanity, preview, and lobby VPKs are skipped.
-
-The mesh is the `default` collision group only. Windows, clips, ladders, and sky stay out.
-
-## Release
-
-A push to `main` replaces the `latest` release asset `cs2-vischeck-extractor.exe`. It is a Windows x64 self-contained binary.
-
-## Why these pieces
-
-ValveResourceFormat reads the physics aggregate directly. The VPK directory is read here, because ValvePak stops at the first preloaded entry and then `ar_pool_day` looks like it has no world physics. A nested `maps/*.vpk` is opened the same way.
