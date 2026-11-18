@@ -5,9 +5,13 @@ sealed class Args
     public const string Usage =
         """
         cs2-vischeck-extractor [--only de_mirage,de_dust2] [--out dir] [--workshop] [--cs2 path]
+                               [--tri] [--vphys] [--vphys-out dir]
 
           --only       comma-separated map names
           --out        directory for .tri files (default: ./tri)
+          --vphys-out  directory for .vphys files (default: ./vphys)
+          --tri        write .tri meshes
+          --vphys      write the physics dump
           --workshop   also read workshop maps
           --cs2        Counter-Strike Global Offensive directory
         """;
@@ -15,6 +19,9 @@ sealed class Args
     public bool Help { get; private init; }
     public string? OnlyText { get; private init; }
     public string Out { get; private init; } = "";
+    public string? VphysOut { get; private init; }
+    public bool Tri { get; private init; }
+    public bool Vphys { get; private init; }
     public bool Workshop { get; private init; }
     public string? Cs2 { get; private init; }
 
@@ -33,7 +40,11 @@ sealed class Args
         error = "";
         string? only = null;
         string? output = null;
+        string? vphysOut = null;
         string? cs2 = null;
+        bool tri = false;
+        bool vphys = false;
+        bool choseFile = false;
         bool workshop = false;
         bool help = false;
 
@@ -55,8 +66,31 @@ sealed class Args
                 case "--out":
                     output = value ?? Missing(out error);
                     break;
+                case "--vphys-out":
+                    vphysOut = value ?? Missing(out error);
+                    vphys = true;
+                    choseFile = true;
+                    break;
                 case "--cs2":
                     cs2 = value ?? Missing(out error);
+                    break;
+                case "--tri":
+                    if (value != null)
+                    {
+                        error = "--tri takes no value";
+                        return false;
+                    }
+                    tri = true;
+                    choseFile = true;
+                    break;
+                case "--vphys":
+                    if (value != null)
+                    {
+                        error = "--vphys takes no value";
+                        return false;
+                    }
+                    vphys = true;
+                    choseFile = true;
                     break;
                 case "--workshop":
                     if (value != null)
@@ -75,11 +109,19 @@ sealed class Args
                 return false;
         }
 
+        if (!choseFile)
+            tri = true;
+        if (vphys && vphysOut == null)
+            vphysOut = Path.Combine(Directory.GetCurrentDirectory(), "vphys");
+
         options = new Args
         {
             Help = help,
             OnlyText = only,
             Out = output ?? options.Out,
+            VphysOut = vphys ? vphysOut : null,
+            Tri = tri,
+            Vphys = vphys,
             Workshop = workshop,
             Cs2 = cs2,
         };

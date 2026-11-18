@@ -16,9 +16,9 @@ static class Out
         Console.WriteLine();
     }
 
-    public static void Wrote(string name, int triangles, TimeSpan time)
+    public static void Wrote(string name, string files, TimeSpan time)
     {
-        Console.WriteLine($"{Name}{name,-18}{Off}  {Ok}{triangles,10:N0}{Off}  {Dim}{time.TotalSeconds:0.0}s{Off}");
+        Console.WriteLine($"{Name}{name,-18}{Off}  {Ok}{files}{Off}  {Dim}{time.TotalSeconds:0.0}s{Off}");
     }
 
     public static void Miss(string name, string reason)
@@ -31,10 +31,10 @@ static class Out
         Console.WriteLine($"{Bad}{name,-18}{Off}  {reason}");
     }
 
-    public static void Done(int wrote, int missed, TimeSpan time, string directory)
+    public static void Done(int wrote, int missed, TimeSpan time, string where)
     {
         Console.WriteLine();
-        Console.WriteLine($"{Ok}{wrote} written{Off}  {Dim}{missed} missed   {time.TotalSeconds:0.0}s   {directory}{Off}");
+        Console.WriteLine($"{Ok}{wrote} written{Off}  {Dim}{missed} missed   {time.TotalSeconds:0.0}s   {where}{Off}");
     }
 
     public static void Error(string message)

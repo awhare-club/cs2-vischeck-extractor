@@ -2,13 +2,14 @@ using System.Diagnostics;
 using Cs2VischeckExtractor.Maps;
 using Cs2VischeckExtractor.Physics;
 using Cs2VischeckExtractor.Tri;
+using Cs2VischeckExtractor.Vphys;
 using Cs2VischeckExtractor.Vpk;
 
 namespace Cs2VischeckExtractor.Cli;
 
 static class Run
 {
-    readonly record struct MapResult(string Name, bool Wrote, string? Note, int Triangles, TimeSpan Time);
+    readonly record struct MapResult(string Name, bool Wrote, string? Note, string Files, TimeSpan Time);
 
     public static int Start(string[] args)
     {
@@ -44,10 +45,13 @@ static class Run
         }
 
         Out.Cs2(cs2);
-        Directory.CreateDirectory(options.Out);
+        if (options.Tri)
+            Directory.CreateDirectory(options.Out);
+        if (options.VphysOut != null)
+            Directory.CreateDirectory(options.VphysOut);
         var results = new MapResult[maps.Count];
         var clock = Stopwatch.StartNew();
-        Parallel.For(0, maps.Count, i => results[i] = WriteMap(maps[i], options.Out));
+        Parallel.For(0, maps.Count, i => results[i] = WriteMap(maps[i], options));
         clock.Stop();
 
         int wrote = 0;
@@ -56,7 +60,7 @@ static class Run
         {
             if (result.Wrote)
             {
-                Out.Wrote(result.Name, result.Triangles, result.Time);
+                Out.Wrote(result.Name, result.Files, result.Time);
                 written.Add(result.Name);
                 wrote++;
             }
@@ -70,31 +74,50 @@ static class Run
             }
         }
 
-        Out.Done(wrote, maps.Count - wrote, clock.Elapsed, options.Out);
+        Out.Done(wrote, maps.Count - wrote, clock.Elapsed, Where(options));
         if (only != null && only.Any(name => !written.Contains(name)))
             return 1;
         return wrote == 0 ? 1 : 0;
     }
 
-    static MapResult WriteMap(MapFile map, string outDir)
+    static string Where(Args options)
+    {
+        if (options.Tri && options.VphysOut != null)
+            return options.Out + "  " + options.VphysOut;
+        return options.VphysOut ?? options.Out;
+    }
+
+    static MapResult WriteMap(MapFile map, Args options)
     {
         var clock = Stopwatch.StartNew();
         try
         {
             WorldPhysicsFile? world = WorldPhysics.Read(map.Path);
             if (world == null)
-                return new MapResult(map.Name, false, "no world physics", 0, clock.Elapsed);
+                return new MapResult(map.Name, false, "no world physics", "", clock.Elapsed);
 
-            MeshExtract? mesh = Extract.FromResource(world.Value.Bytes, world.Value.ResourceName);
-            if (mesh == null || mesh.Value.Triangles.Count == 0)
-                return new MapResult(world.Value.MapName, false, "no default collision", 0, clock.Elapsed);
+            MeshExtract? mesh = Extract.FromResource(world.Value.Bytes, world.Value.ResourceName, options.Vphys);
+            if (mesh == null)
+                return new MapResult(world.Value.MapName, false, "no physics", "", clock.Elapsed);
 
-            TriFile.Write(Path.Combine(outDir, world.Value.MapName + ".tri"), mesh.Value.Triangles);
-            return new MapResult(world.Value.MapName, true, null, mesh.Value.Triangles.Count, clock.Elapsed);
+            bool haveTri = options.Tri && mesh.Value.Triangles.Count > 0;
+            bool havePhys = options.Vphys && mesh.Value.Phys != null;
+            if (!haveTri && !havePhys)
+                return new MapResult(world.Value.MapName, false, "no default collision", "", clock.Elapsed);
+
+            if (haveTri)
+                TriFile.Write(Path.Combine(options.Out, world.Value.MapName + ".tri"), mesh.Value.Triangles);
+            if (havePhys && options.VphysOut != null)
+                PhysFile.Write(Path.Combine(options.VphysOut, world.Value.MapName + ".vphys"), mesh.Value.Phys!);
+
+            string files = haveTri && havePhys
+                ? $"{mesh.Value.Triangles.Count:N0}  vphys"
+                : havePhys ? "vphys" : $"{mesh.Value.Triangles.Count:N0}";
+            return new MapResult(world.Value.MapName, true, null, files, clock.Elapsed);
         }
         catch (Exception ex)
         {
-            return new MapResult(map.Name, false, "failed " + ex.Message, 0, clock.Elapsed);
+            return new MapResult(map.Name, false, "failed " + ex.Message, "", clock.Elapsed);
         }
     }
 }
