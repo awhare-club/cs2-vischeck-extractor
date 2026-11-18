@@ -1,0 +1,77 @@
+{
+  "version": 2,
+  "skills": {
+    "csharp-async": {
+      "source": "github/awesome-copilot",
+      "commit": "a255a193d1318e5a9ca3e9e575897f9a7845c099",
+      "sourceType": "github",
+      "skillPath": "skills/csharp-async/SKILL.md",
+      "computedHash": "5fd249fbacf89f08f93a2b8ede8cb030a7d7671577d829277a0042d5c89752c7",
+      "installMode": "copy"
+    },
+    "csharp-developer": {
+      "source": "Jeffallan/claude-skills",
+      "commit": "67c1961b180dc92cf08983344627109e983e8f51",
+      "sourceType": "github",
+      "skillPath": "skills/csharp-developer/SKILL.md",
+      "computedHash": "33fae08eeb43dc53021e623a1a7d6bdc4bb0f0be7f24b3157efcdf01ea257bca",
+      "installMode": "copy"
+    },
+    "csharp-docs": {
+      "source": "github/awesome-copilot",
+      "commit": "a255a193d1318e5a9ca3e9e575897f9a7845c099",
+      "sourceType": "github",
+      "skillPath": "skills/csharp-docs/SKILL.md",
+      "computedHash": "1ee3057e274d274947dbaebc25c48d692ba05c7318cbbb02eb7e03bea07179c4",
+      "installMode": "copy"
+    },
+    "csharp-expert": {
+      "source": "dotnet/skills",
+      "commit": "2877c712edc20643b72f64e2983b168e6661d607",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet/skills/csharp-expert/SKILL.md",
+      "computedHash": "81c33ee4d5d24c6a32c312deb434027e488512ba93162d9278c69f7b863c5a4d",
+      "installMode": "copy"
+    },
+    "csharp-refactoring": {
+      "source": "dotnet/skills",
+      "commit": "2877c712edc20643b72f64e2983b168e6661d607",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet/skills/csharp-refactoring/SKILL.md",
+      "computedHash": "32a0247c73bc42649c6de7fd54ac0f7b4dadc4f6d0968b155a12aec58f669dfc",
+      "installMode": "copy"
+    },
+    "csharp-xunit": {
+      "source": "github/awesome-copilot",
+      "commit": "a255a193d1318e5a9ca3e9e575897f9a7845c099",
+      "sourceType": "github",
+      "skillPath": "skills/csharp-xunit/SKILL.md",
+      "computedHash": "0b2a4fec896ffd99ee11fc47417705ad23e59575c1f67aa411abf3614743611e",
+      "installMode": "copy"
+    },
+    "dotnet-core-expert": {
+      "source": "Jeffallan/claude-skills",
+      "commit": "67c1961b180dc92cf08983344627109e983e8f51",
+      "sourceType": "github",
+      "skillPath": "skills/dotnet-core-expert/SKILL.md",
+      "computedHash": "6e1ce332ad987ecac11da96dab1290fd6dc54e15dd2cc1f2c0d41908b2531fb4",
+      "installMode": "copy"
+    },
+    "modern-csharp": {
+      "source": "codewithmukesh/dotnet-claude-kit",
+      "commit": "6de62a5a64c1d4e2c8b14f9c0b8cf8bb4690814d",
+      "sourceType": "github",
+      "skillPath": "skills/modern-csharp/SKILL.md",
+      "computedHash": "fc1f7dd313ed6a8cc8673e5128384c10a690954f40b5e6505c46b9eb9ffc5c9d",
+      "installMode": "copy"
+    },
+    "modern-csharp-coding-standards": {
+      "source": "Aaronontheweb/dotnet-skills",
+      "commit": "5ca5db8cf25566f19d2a5dc53204d4af22b23a0d",
+      "sourceType": "github",
+      "skillPath": "skills/csharp-coding-standards/SKILL.md",
+      "computedHash": "7c275063c6e3cdf63b505293a4dae8d12bae0e7697c1cae5d2085110ce8d2dca",
+      "installMode": "copy"
+    }
+  }
+}
