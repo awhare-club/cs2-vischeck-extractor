@@ -12,6 +12,7 @@ src/maps/      Steam, the CS2 install, which maps
 src/vpk/       VPK directory and world_physics.vmdl_c
 src/physics/   PHYS block, Default collision, hulls, meshes
 src/tri/       the 36-byte triangle file
+src/vphys/     the physics dump
 ```
 
 `src/Program.cs` only starts the run.
@@ -21,11 +22,11 @@ src/tri/       the 36-byte triangle file
 Requires the .NET 10 SDK.
 
 ```
-dotnet run --project src -- --only de_mirage,de_dust2 --out tri
-dotnet run --project src -- --workshop --out tri
+dotnet run --project src -- --only de_mirage,de_dust2
+dotnet run --project src -- --workshop --tri --vphys
 ```
 
-No arguments extracts every official `de_`, `cs_`, and `ar_` map into `./tri`. `--cs2` overrides the install path. Vanity, preview, and lobby VPKs are skipped.
+No arguments extracts every official `de_`, `cs_`, and `ar_` map into `./out`. `--vphys` writes the physics dump beside the `.tri` files. `--cs2` overrides the install path. Vanity, preview, and lobby VPKs are skipped.
 
 The mesh is the `default` collision group only. Windows, clips, ladders, and sky stay out.
 

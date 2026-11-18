@@ -4,22 +4,21 @@ sealed class Args
 {
     public const string Usage =
         """
-        cs2-vischeck-extractor [--only de_mirage,de_dust2] [--out dir] [--workshop] [--cs2 path]
-                               [--tri] [--vphys] [--vphys-out dir]
+        cs2-vischeck-extractor [--only de_mirage,de_dust2] [--workshop] [--cs2 path]
+                               [--tri] [--vphys]
 
           --only       comma-separated map names
-          --out        directory for .tri files (default: ./tri)
-          --vphys-out  directory for .vphys files (default: ./vphys)
           --tri        write .tri meshes
           --vphys      write the physics dump
           --workshop   also read workshop maps
           --cs2        Counter-Strike Global Offensive directory
+
+        Files are written to ./out.
         """;
 
     public bool Help { get; private init; }
     public string? OnlyText { get; private init; }
     public string Out { get; private init; } = "";
-    public string? VphysOut { get; private init; }
     public bool Tri { get; private init; }
     public bool Vphys { get; private init; }
     public bool Workshop { get; private init; }
@@ -36,11 +35,9 @@ sealed class Args
 
     public static bool TryParse(string[] args, out Args options, out string error)
     {
-        options = new Args { Out = Path.Combine(Directory.GetCurrentDirectory(), "tri") };
+        options = new Args { Out = Path.Combine(Directory.GetCurrentDirectory(), "out") };
         error = "";
         string? only = null;
-        string? output = null;
-        string? vphysOut = null;
         string? cs2 = null;
         bool tri = false;
         bool vphys = false;
@@ -62,14 +59,6 @@ sealed class Args
             {
                 case "--only":
                     only = value ?? Missing(out error);
-                    break;
-                case "--out":
-                    output = value ?? Missing(out error);
-                    break;
-                case "--vphys-out":
-                    vphysOut = value ?? Missing(out error);
-                    vphys = true;
-                    choseFile = true;
                     break;
                 case "--cs2":
                     cs2 = value ?? Missing(out error);
@@ -111,15 +100,12 @@ sealed class Args
 
         if (!choseFile)
             tri = true;
-        if (vphys && vphysOut == null)
-            vphysOut = Path.Combine(Directory.GetCurrentDirectory(), "vphys");
 
         options = new Args
         {
             Help = help,
             OnlyText = only,
-            Out = output ?? options.Out,
-            VphysOut = vphys ? vphysOut : null,
+            Out = options.Out,
             Tri = tri,
             Vphys = vphys,
             Workshop = workshop,

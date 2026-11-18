@@ -45,10 +45,7 @@ static class Run
         }
 
         Out.Cs2(cs2);
-        if (options.Tri)
-            Directory.CreateDirectory(options.Out);
-        if (options.VphysOut != null)
-            Directory.CreateDirectory(options.VphysOut);
+        Directory.CreateDirectory(options.Out);
         var results = new MapResult[maps.Count];
         var clock = Stopwatch.StartNew();
         Parallel.For(0, maps.Count, i => results[i] = WriteMap(maps[i], options));
@@ -74,17 +71,10 @@ static class Run
             }
         }
 
-        Out.Done(wrote, maps.Count - wrote, clock.Elapsed, Where(options));
+        Out.Done(wrote, maps.Count - wrote, clock.Elapsed, options.Out);
         if (only != null && only.Any(name => !written.Contains(name)))
             return 1;
         return wrote == 0 ? 1 : 0;
-    }
-
-    static string Where(Args options)
-    {
-        if (options.Tri && options.VphysOut != null)
-            return options.Out + "  " + options.VphysOut;
-        return options.VphysOut ?? options.Out;
     }
 
     static MapResult WriteMap(MapFile map, Args options)
@@ -107,8 +97,8 @@ static class Run
 
             if (haveTri)
                 TriFile.Write(Path.Combine(options.Out, world.Value.MapName + ".tri"), mesh.Value.Triangles);
-            if (havePhys && options.VphysOut != null)
-                PhysFile.Write(Path.Combine(options.VphysOut, world.Value.MapName + ".vphys"), mesh.Value.Phys!);
+            if (havePhys)
+                PhysFile.Write(Path.Combine(options.Out, world.Value.MapName + ".vphys"), mesh.Value.Phys!);
 
             string files = haveTri && havePhys
                 ? $"{mesh.Value.Triangles.Count:N0}  vphys"
